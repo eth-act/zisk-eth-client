@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 
-ZISK_BIN="/projects/EF/zisk-repos/zisk/target/release"
-
-output=$(PATH="$ZISK_BIN:$PATH" ziskemu "$@" -X 2>&1)
+output=$(ziskemu "$@" -X 2>&1)
 rc=$?
 
 if [ $rc -ne 0 ]; then

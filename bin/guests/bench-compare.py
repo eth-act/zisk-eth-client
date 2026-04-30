@@ -30,6 +30,7 @@ BASELINE_ELF = BASELINE_DIR / "target" / "riscv64ima-zisk-zkvm-elf" / "release" 
 U256_ELF     = U256_DIR    / "target" / "riscv64ima-zisk-zkvm-elf" / "release" / "zec-reth"
 
 BENCH_PY = SCRIPT_DIR / "bench.py"
+U256_ZISKEMU_PATH = "/projects/EF/zisk-repos/zisk/target/release"
 
 
 def build(crate_dir: Path):
@@ -40,10 +41,16 @@ def build(crate_dir: Path):
         sys.exit(f"Build failed in {crate_dir.name}")
 
 
-def run_bench(elf: Path, csv_out: Path):
+def run_bench(elf: Path, csv_out: Path, extra_path: str | None = None):
     print(f"\n=== Benchmarking {elf.parent.parent.name} ===", flush=True)
+    env = None
+    if extra_path:
+        import os
+        env = os.environ.copy()
+        env["PATH"] = f"{extra_path}:{env['PATH']}"
     result = subprocess.run(
         [sys.executable, str(BENCH_PY), "-e", str(elf), "-o", str(csv_out)],
+        env=env,
     )
     if result.returncode != 0:
         sys.exit(f"bench.py failed for {elf}")
@@ -69,7 +76,7 @@ def main():
     build(U256_DIR)
 
     run_bench(BASELINE_ELF, baseline_csv)
-    run_bench(U256_ELF,     u256_csv)
+    run_bench(U256_ELF,     u256_csv, extra_path=U256_ZISKEMU_PATH)
 
     baseline = read_csv(baseline_csv)
     u256     = read_csv(u256_csv)
