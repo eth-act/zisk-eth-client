@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use alloc::{sync::Arc, vec::Vec};
 
 use alloy_primitives::B256;
 use alloy_rpc_types_debug::ExecutionWitness;
@@ -19,9 +19,7 @@ pub fn verify_signatures(
     chain_spec: Arc<ChainSpec>,
     public_keys: Vec<UncompressedPublicKey>,
 ) -> Result<RecoveredBlock<Block>, StatelessValidationError> {
-    // Recover block with public keys while validating signatures
     let recovered_block = recover_block_with_public_keys(block, public_keys, &*chain_spec)?;
-
     Ok(recovered_block)
 }
 
@@ -31,16 +29,12 @@ pub fn validate_block_stateless(
     witness: ExecutionWitness,
     chain_spec: Arc<ChainSpec>,
 ) -> Result<B256, StatelessValidationError> {
-    // Create EVM config from chain spec
     let evm_config = EthEvmConfig::new(chain_spec.clone());
-
-    // Perform stateless validation
     let (hash, _) = stateless_validation_recovered_with_trie::<SparseState, _, _>(
         recovered_block,
         witness,
         chain_spec,
         evm_config,
     )?;
-
     Ok(hash)
 }

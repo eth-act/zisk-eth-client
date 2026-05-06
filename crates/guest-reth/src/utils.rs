@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use alloc::sync::Arc;
 
 use alloy_genesis::{ChainConfig, Genesis};
 use reth_chainspec::ChainSpec;
